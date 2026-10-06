@@ -164,13 +164,13 @@ get_packages() {
         debian:recommended)
             printf '%s\n' \
                 curl wget less file unzip 7zip tree fzf ripgrep bat fd-find \
-                zoxide jq git python3
+                zoxide jq git python3 vim fastfetch btop
             ;;
         debian:full)
             printf '%s\n' \
                 eza starship fastfetch lsof strace tcpdump psmisc \
                 netcat-openbsd dnsutils traceroute mtr-tiny sysstat htop btop \
-                iotop pciutils usbutils lshw docker.io
+                iotop pciutils usbutils lshw
             ;;
 
         # ---------------------------------------------------------------------
@@ -184,7 +184,7 @@ get_packages() {
         fedora:recommended)
             printf '%s\n' \
                 curl wget less file unzip 7zip tree fzf ripgrep bat fd-find \
-                zoxide jq git python3
+                zoxide jq git python3 fastfetch btop
             ;;
         fedora:full)
             printf '%s\n' \
@@ -204,13 +204,13 @@ get_packages() {
         arch:recommended)
             printf '%s\n' \
                 curl wget less file unzip 7zip tree fzf ripgrep bat fd zoxide \
-                jq git python
+                jq git python fastfetch btop
             ;;
         arch:full)
             printf '%s\n' \
                 eza starship fastfetch lsof strace tcpdump psmisc openbsd-netcat \
                 bind traceroute mtr sysstat htop btop iotop pciutils usbutils \
-                lshw docker
+                lshw
             ;;
         *)
             return 1
