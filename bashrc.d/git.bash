@@ -81,3 +81,9 @@ gituntracked() {
     _git_required || return
     git ls-files --others --exclude-standard
 }
+
+lazyg () {
+  git add .
+  git commit -m "$1"
+  git push
+}
