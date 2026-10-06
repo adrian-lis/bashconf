@@ -1132,6 +1132,7 @@ Git:
   gitsummary      Compact repository summary
   gitlast         Show recent commits
   gituntracked    Show untracked files
+  lazyg           Add changes to repo fast
 
 Environment / shell:
   envgrep         Search environment variables
