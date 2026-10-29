@@ -209,6 +209,7 @@ gitlast 10
 gituntracked
 gitremote
 gitignored
+lazyg
 ```
 
 ### JSON
