@@ -134,3 +134,14 @@ else
 fi
 
 unset module module_path
+
+# Automatically list directory contents after changing directories
+cd() {
+    builtin cd "$@" || return
+
+    if command -v eza &>/dev/null; then
+        eza -lah --group-directories-first
+    else
+        ls -al
+    fi
+}
