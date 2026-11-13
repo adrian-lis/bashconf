@@ -1,5 +1,5 @@
 v() {
-  # --- PALETA NEONOWA ---
+  # --- NEON COLOR PALETTE ---
   local CYAN='\033[1;96m'
   local MAGENTA='\033[1;95m'
   local GREEN='\033[1;92m'
@@ -8,7 +8,7 @@ v() {
   local BOLD='\033[1m'
   local NC='\033[0m'
 
-  # --- BANER ASCII ---
+  # --- ASCII BANNER ---
   _v_banner() {
     echo -e "${MAGENTA}"
     echo -e " ____   ____                  "
@@ -20,23 +20,23 @@ v() {
     echo -e "${NC}"
   }
 
-  # --- FUNKCJA POMOCNICZA: STATUS BOX ---
+  # --- HELPER FUNCTION: STATUS BOX ---
   _v_status() {
     local py_v=$(python -V 2>&1 | awk '{print $2}')
     local branch=$(git branch --show-current 2>/dev/null)
     local venv_size=$(du -sh venv 2>/dev/null | cut -f1)
 
     echo -e "${MAGENTA}╭───────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}📂 PROJEKT:${NC}  ${BOLD}$(basename "$PWD")${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}📂 PROJECT:${NC}  ${BOLD}$(basename "$PWD")${NC}"
     [[ -n "$branch" ]] && echo -e "${MAGENTA}│${NC} ${MAGENTA}🌿 BRANCH:${NC}   ${BOLD}$branch${NC}"
     echo -e "${MAGENTA}│${NC} ${GREEN}🐍 PYTHON:${NC}   ${BOLD}$py_v${NC} (venv: ${venv_size:-N/A})"
     echo -e "${MAGENTA}╰───────────────────────────────────────────────────${NC}"
   }
 
-  # --- NOWA FUNKCJA: ROZSZERZONY INFO ---
+  # --- NEW FUNCTION: DETAILED INFO ---
   _v_info() {
     if [[ ! -d "venv" ]]; then
-      echo -e "${RED}✖ BŁĄD:${NC} Brak folderu venv w tym miejscu."
+      echo -e "${RED}✖ ERROR:${NC} No venv directory in the current location."
       return 1
     fi
 
@@ -45,9 +45,9 @@ v() {
     local venv_size=$(du -sh venv 2>/dev/null | cut -f1)
     local venv_size_bytes=$(du -sb venv 2>/dev/null | cut -f1)
     local branch=$(git branch --show-current 2>/dev/null)
-    local git_remote=$(git remote get-url origin 2>/dev/null || echo "brak")
+    local git_remote=$(git remote get-url origin 2>/dev/null || echo "none")
 
-    # Data utworzenia venv (pyvenv.cfg lub katalog)
+    # venv creation date (pyvenv.cfg or directory)
     local created_date="N/A"
     if [[ -f "venv/pyvenv.cfg" ]]; then
       created_date=$(stat -c "%y" venv/pyvenv.cfg 2>/dev/null ||
@@ -56,62 +56,62 @@ v() {
       created_date=$(echo "$created_date" | cut -d'.' -f1)
     fi
 
-    # Liczba pakietów (bez pip/setuptools/wheel)
+    # Package count (excluding pip/setuptools/wheel)
     local pkg_count=0
     if [[ -n "$VIRTUAL_ENV" ]]; then
       pkg_count=$(pip list --format=columns 2>/dev/null |
         grep -vE "^Package|^---|^pip |^setuptools |^wheel " |
         wc -l | tr -d ' ')
     else
-      # Próba policzenia bez aktywacji przez site-packages
+      # Attempt to count without activation via site-packages
       local site_pkg=$(find venv -type d -name "site-packages" 2>/dev/null | head -1)
       if [[ -n "$site_pkg" ]]; then
         pkg_count=$(ls "$site_pkg" 2>/dev/null |
           grep -vE "pip|setuptools|wheel|__pycache__|\.dist-info$|\.data$" |
           grep -c "\.dist-info" 2>/dev/null || echo "?")
-        # Liczenie .dist-info jako pakiety
+        # Count .dist-info directories as packages
         pkg_count=$(ls "$site_pkg" 2>/dev/null |
           grep -c "\.dist-info$" 2>/dev/null || echo "?")
       fi
     fi
 
-    # Python użyty do stworzenia venv
+    # Python used to create the venv
     local venv_py_bin=$(cat venv/pyvenv.cfg 2>/dev/null |
       grep "^home" | awk -F'= ' '{print $2}')
 
     echo -e "${MAGENTA}╭──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}📊 SZCZEGÓŁOWE INFORMACJE O ŚRODOWISKU${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}📊 DETAILED ENVIRONMENT INFORMATION${NC}"
     echo -e "${MAGENTA}├──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}📂 Projekt:${NC}        ${BOLD}$(basename "$PWD")${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}📍 Ścieżka:${NC}        ${BOLD}$PWD${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}📂 Project:${NC}        ${BOLD}$(basename "$PWD")${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}📍 Path:${NC}        ${BOLD}$PWD${NC}"
     [[ -n "$branch" ]] &&
       echo -e "${MAGENTA}│${NC} ${MAGENTA}🌿 Git branch:${NC}     ${BOLD}$branch${NC}"
-    [[ "$git_remote" != "brak" ]] &&
+    [[ "$git_remote" != "none" ]] &&
       echo -e "${MAGENTA}│${NC} ${MAGENTA}🔗 Git remote:${NC}     ${BOLD}$git_remote${NC}"
     echo -e "${MAGENTA}├──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${GREEN}🐍 Python (aktywny):${NC} ${BOLD}$py_v${NC}"
-    echo -e "${MAGENTA}│${NC} ${GREEN}📌 Ścieżka Python:${NC}  ${BOLD}$py_path${NC}"
+    echo -e "${MAGENTA}│${NC} ${GREEN}🐍 Python (active):${NC} ${BOLD}$py_v${NC}"
+    echo -e "${MAGENTA}│${NC} ${GREEN}📌 Python path:${NC}  ${BOLD}$py_path${NC}"
     [[ -n "$venv_py_bin" ]] &&
-      echo -e "${MAGENTA}│${NC} ${GREEN}🏗 Python (venv z):${NC} ${BOLD}$venv_py_bin${NC}"
+      echo -e "${MAGENTA}│${NC} ${GREEN}🏗 Venv base Python:${NC} ${BOLD}$venv_py_bin${NC}"
     echo -e "${MAGENTA}├──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${YELLOW}📦 Pakiety (bez base):${NC} ${BOLD}$pkg_count${NC}"
-    echo -e "${MAGENTA}│${NC} ${YELLOW}💾 Rozmiar venv:${NC}      ${BOLD}$venv_size${NC}"
-    echo -e "${MAGENTA}│${NC} ${YELLOW}📅 Utworzono:${NC}         ${BOLD}$created_date${NC}"
+    echo -e "${MAGENTA}│${NC} ${YELLOW}📦 Packages (excluding base):${NC} ${BOLD}$pkg_count${NC}"
+    echo -e "${MAGENTA}│${NC} ${YELLOW}💾 venv size:${NC}      ${BOLD}$venv_size${NC}"
+    echo -e "${MAGENTA}│${NC} ${YELLOW}📅 Created:${NC}         ${BOLD}$created_date${NC}"
 
-    # Czy aktywny
+    # Whether the environment is active
     if [[ -n "$VIRTUAL_ENV" ]]; then
-      echo -e "${MAGENTA}│${NC} ${GREEN}✔  Status:${NC}           ${BOLD}${GREEN}AKTYWNY${NC}"
+      echo -e "${MAGENTA}│${NC} ${GREEN}✔  Status:${NC}           ${BOLD}${GREEN}ACTIVE${NC}"
     else
-      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸  Status:${NC}           ${BOLD}${YELLOW}NIEAKTYWNY${NC}"
+      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸  Status:${NC}           ${BOLD}${YELLOW}INACTIVE${NC}"
     fi
 
     echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
   }
 
-  # --- NOWA FUNKCJA: HEALTH CHECK ---
+  # --- NEW FUNCTION: HEALTH CHECK ---
   _v_health() {
     if [[ ! -d "venv" ]]; then
-      echo -e "${RED}✖ BŁĄD:${NC} Brak folderu venv w tym miejscu."
+      echo -e "${RED}✖ ERROR:${NC} No venv directory in the current location."
       return 1
     fi
 
@@ -119,107 +119,107 @@ v() {
     local warnings=0
 
     echo -e "${MAGENTA}╭──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}🩺 DIAGNOSTYKA ŚRODOWISKA VENV${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}🩺 VENV ENVIRONMENT HEALTH CHECK${NC}"
     echo -e "${MAGENTA}├──────────────────────────────────────────────────────────${NC}"
 
-    # 1. Sprawdź plik activate
-    echo -en "${MAGENTA}│${NC} ${BOLD}[1/6]${NC} Plik activate ...           "
+    # 1. Check the activate file
+    echo -en "${MAGENTA}│${NC} ${BOLD}[1/6]${NC} Activation script ...           "
     if [[ -f "venv/bin/activate" ]]; then
       echo -e "${GREEN}✔ OK${NC}"
     else
-      echo -e "${RED}✖ BRAK${NC}"
+      echo -e "${RED}✖ MISSING${NC}"
       ((errors++))
     fi
 
-    # 2. Sprawdź czy python binary istnieje
-    echo -en "${MAGENTA}│${NC} ${BOLD}[2/6]${NC} Binary python/python3 ...   "
+    # 2. Check whether the Python binary exists
+    echo -en "${MAGENTA}│${NC} ${BOLD}[2/6]${NC} Python/Python3 executable ...   "
     if [[ -f "venv/bin/python" || -f "venv/bin/python3" ]]; then
       echo -e "${GREEN}✔ OK${NC}"
     else
-      echo -e "${RED}✖ BRAK${NC}"
+      echo -e "${RED}✖ MISSING${NC}"
       ((errors++))
     fi
 
-    # 3. Sprawdź czy python binary jest wykonywalny (nie zepsuty symlink)
-    echo -en "${MAGENTA}│${NC} ${BOLD}[3/6]${NC} Symlink python działa ...   "
+    # 3. Check whether the Python binary is executable (not a broken symlink)
+    echo -en "${MAGENTA}│${NC} ${BOLD}[3/6]${NC} Python symlink works ...   "
     local py_bin="venv/bin/python"
     [[ ! -f "$py_bin" ]] && py_bin="venv/bin/python3"
     if [[ -x "$py_bin" ]] && "$py_bin" --version &>/dev/null; then
       echo -e "${GREEN}✔ OK${NC}  ($("$py_bin" --version 2>&1))"
     else
-      echo -e "${RED}✖ ZEPSUTY SYMLINK${NC}"
+      echo -e "${RED}✖ BROKEN SYMLINK${NC}"
       ((errors++))
     fi
 
-    # 4. Sprawdź pip
-    echo -en "${MAGENTA}│${NC} ${BOLD}[4/6]${NC} pip dostępny ...            "
+    # 4. Check pip
+    echo -en "${MAGENTA}│${NC} ${BOLD}[4/6]${NC} pip available ...            "
     if [[ -f "venv/bin/pip" ]] && venv/bin/pip --version &>/dev/null; then
       local pip_ver=$(venv/bin/pip --version 2>&1 | awk '{print $2}')
       echo -e "${GREEN}✔ OK${NC}  (pip $pip_ver)"
     else
-      echo -e "${YELLOW}⚠ BRAK${NC}"
+      echo -e "${YELLOW}⚠ MISSING${NC}"
       ((warnings++))
     fi
 
-    # 5. Konflikty zależności (tylko gdy venv aktywny)
-    echo -en "${MAGENTA}│${NC} ${BOLD}[5/6]${NC} Konflikty zależności ...    "
+    # 5. Dependency conflicts (only when venv is active)
+    echo -en "${MAGENTA}│${NC} ${BOLD}[5/6]${NC} Dependency conflicts ...    "
     if [[ -n "$VIRTUAL_ENV" ]]; then
       local conflicts=$(pip check 2>&1)
       if echo "$conflicts" | grep -q "No broken requirements"; then
-        echo -e "${GREEN}✔ BRAK KONFLIKTÓW${NC}"
+        echo -e "${GREEN}✔ NO CONFLICTS${NC}"
       else
-        echo -e "${RED}✖ WYKRYTO KONFLIKTY:${NC}"
+        echo -e "${RED}✖ CONFLICTS DETECTED:${NC}"
         echo "$conflicts" | while read -r line; do
           echo -e "${MAGENTA}│${NC}    ${RED}↳${NC} $line"
         done
         ((errors++))
       fi
     else
-      echo -e "${YELLOW}⚠ POMIŃ${NC} (aktywuj venv aby sprawdzić)"
+      echo -e "${YELLOW}⚠ SKIP${NC} (activate venv to check)"
       ((warnings++))
     fi
 
-    # 6. Sprawdź pyvenv.cfg
-    echo -en "${MAGENTA}│${NC} ${BOLD}[6/6]${NC} Plik pyvenv.cfg ...         "
+    # 6. Check pyvenv.cfg
+    echo -en "${MAGENTA}│${NC} ${BOLD}[6/6]${NC} pyvenv.cfg file ...         "
     if [[ -f "venv/pyvenv.cfg" ]]; then
       local cfg_home=$(grep "^home" venv/pyvenv.cfg | awk -F'= ' '{print $2}')
       if [[ -d "$cfg_home" ]]; then
         echo -e "${GREEN}✔ OK${NC}  (home: $cfg_home)"
       else
-        echo -e "${YELLOW}⚠ UWAGA${NC}  (oryginalne Python path nie istnieje: $cfg_home)"
+        echo -e "${YELLOW}⚠ WARNING${NC}  (original Python path does not exist: $cfg_home)"
         ((warnings++))
       fi
     else
-      echo -e "${YELLOW}⚠ BRAK${NC}"
+      echo -e "${YELLOW}⚠ MISSING${NC}"
       ((warnings++))
     fi
 
     echo -e "${MAGENTA}├──────────────────────────────────────────────────────────${NC}"
 
-    # Podsumowanie
+    # Summary
     if [[ $errors -eq 0 && $warnings -eq 0 ]]; then
-      echo -e "${MAGENTA}│${NC} ${GREEN}${BOLD}✔ WYNIK: Środowisko w pełni sprawne!${NC}"
+      echo -e "${MAGENTA}│${NC} ${GREEN}${BOLD}✔ RESULT: Environment is fully operational!${NC}"
     elif [[ $errors -eq 0 ]]; then
-      echo -e "${MAGENTA}│${NC} ${YELLOW}${BOLD}⚠ WYNIK: $warnings ostrzeżeń, środowisko działa.${NC}"
+      echo -e "${MAGENTA}│${NC} ${YELLOW}${BOLD}⚠ RESULT: $warnings warnings; the environment is working.${NC}"
     else
-      echo -e "${MAGENTA}│${NC} ${RED}${BOLD}✖ WYNIK: $errors błędów, $warnings ostrzeżeń.${NC}"
-      echo -e "${MAGENTA}│${NC} ${YELLOW}  Rozważ: ${BOLD}v --remove${NC}${YELLOW} i ${BOLD}v --create${NC}${YELLOW} aby odbudować venv.${NC}"
+      echo -e "${MAGENTA}│${NC} ${RED}${BOLD}✖ RESULT: $errors errors, $warnings warnings.${NC}"
+      echo -e "${MAGENTA}│${NC} ${YELLOW}  Consider: ${BOLD}v --remove${NC}${YELLOW} and ${BOLD}v --create${NC}${YELLOW} to rebuild venv.${NC}"
     fi
 
     echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
   }
 
-  # --- NOWA FUNKCJA: LISTA PROJEKTÓW WG ROZMIARU ---
+  # --- NEW FUNCTION: PROJECT LIST BY SIZE ---
   _v_size() {
-    echo -e "${CYAN}⏳ Obliczanie rozmiarów venv w ~/Coding/ ...${NC}"
+    echo -e "${CYAN}⏳ Calculating venv sizes in ~/Coding/ ...${NC}"
     echo -e "${MAGENTA}╭──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}💾 PROJEKTY POSORTOWANE PO ROZMIARZE VENV${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}💾 PROJECTS SORTED BY VENV SIZE${NC}"
     echo -e "${MAGENTA}├────────────────────┬────────────┬────────────────────────${NC}"
     printf "${MAGENTA}│${NC} ${BOLD}%-18s${NC} ${MAGENTA}│${NC} ${BOLD}%-10s${NC} ${MAGENTA}│${NC} ${BOLD}%-22s${NC}\n" \
-      "PROJEKT" "ROZMIAR" "ŚCIEŻKA"
+      "PROJECT" "SIZE" "PATH"
     echo -e "${MAGENTA}├────────────────────┼────────────┼────────────────────────${NC}"
 
-    # Zbierz dane i posortuj po rozmiarze (bajtach)
+    # Collect data and sort by size (bytes)
     local tmp_data=()
     while IFS= read -r venv_path; do
       local project_path=$(dirname "$venv_path")
@@ -230,14 +230,14 @@ v() {
       tmp_data+=("${size_bytes}|${project_name}|${size_human}|${short_path}")
     done < <(find ~/Coding -maxdepth 3 -type d -name "venv" -exec test -e "{}/bin/activate" \; -print)
 
-    # Sortuj malejąco po rozmiarze
+    # Sort in descending order by size
     local sorted
     sorted=$(printf '%s\n' "${tmp_data[@]}" | sort -t'|' -k1 -rn)
 
     local total_bytes=0
     local rank=1
     while IFS='|' read -r size_bytes project_name size_human short_path; do
-      # Koloruj w zależności od rozmiaru
+      # Set the color based on size
       local color="$GREEN"
       [[ $size_bytes -gt 524288000 ]] && color="$RED"                                 # > 500MB
       [[ $size_bytes -gt 104857600 && $size_bytes -le 524288000 ]] && color="$YELLOW" # 100-500MB
@@ -248,7 +248,7 @@ v() {
       ((rank++))
     done <<<"$sorted"
 
-    # Suma
+    # Total
     local total_human
     if command -v numfmt &>/dev/null; then
       total_human=$(numfmt --to=iec-i --suffix=B "$total_bytes" 2>/dev/null)
@@ -262,48 +262,48 @@ v() {
     fi
 
     echo -e "${MAGENTA}├────────────────────┴────────────┴────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}📊 Projektów:${NC} ${BOLD}$((rank - 1))${NC}   ${CYAN}|  Łącznie venv:${NC} ${BOLD}${total_human}${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}📊 Projects:${NC} ${BOLD}$((rank - 1))${NC}   ${CYAN}|  Total venv size:${NC} ${BOLD}${total_human}${NC}"
     echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
     echo -e "  ${YELLOW}🟢 < 100MB   🟡 100-500MB   🔴 > 500MB${NC}"
   }
 
-  # --- OBSŁUGA FLAG (LOGIKA) ---
+  # --- FLAG HANDLING (LOGIC) ---
   case "$1" in
   -h | --help)
     _v_banner
-    echo -e "${CYAN}${BOLD}     SYSTEM ZARZĄDZANIA ŚRODOWISKIEM VENV${NC}"
+    echo -e "${CYAN}${BOLD}     VENV ENVIRONMENT MANAGEMENT SYSTEM${NC}"
     echo -e "${MAGENTA}──────────────────────────────────────────────────────${NC}"
-    echo -e "${BOLD}UŻYCIE:${NC}"
-    echo -e "  ${GREEN}v${NC}               ${BOLD}»${NC} Aktywuj venv w bieżącym folderze"
-    echo -e "  ${GREEN}v [folder]${NC}       ${BOLD}»${NC} Skocz do ${BOLD}~/Coding/[folder]${NC} i aktywuj"
+    echo -e "${BOLD}USAGE:${NC}"
+    echo -e "  ${GREEN}v${NC}               ${BOLD}»${NC} Activate venv in the current directory"
+    echo -e "  ${GREEN}v [folder]${NC}       ${BOLD}»${NC} Go to ${BOLD}~/Coding/[folder]${NC} and activate"
     echo -e ""
-    echo -e "${BOLD}OPCJE:${NC}"
-    echo -e "  ${YELLOW}-l, --list${NC}      ${BOLD}»${NC} Lista wszystkich projektów z venv"
-    echo -e "  ${YELLOW}-p, --pips${NC}      ${BOLD}»${NC} Lista zainstalowanych pakietów (pip list)"
-    echo -e "  ${YELLOW}-u, --update${NC}    ${BOLD}»${NC} Aktualizuj pip, setuptools i wheel"
-    echo -e "  ${YELLOW}-c, --create${NC}    ${BOLD}»${NC} Kreator nowego projektu (interaktywny)"
-    echo -e "  ${YELLOW}-rm, --remove${NC}   ${BOLD}»${NC} Usuń folder venv (bezpiecznie)"
-    echo -e "  ${YELLOW}-f, --find${NC}      ${BOLD}»${NC} Szukaj projektu (wymaga fzf)"
+    echo -e "${BOLD}OPTIONS:${NC}"
+    echo -e "  ${YELLOW}-l, --list${NC}      ${BOLD}»${NC} List all projects with venv"
+    echo -e "  ${YELLOW}-p, --pips${NC}      ${BOLD}»${NC} List installed packages (pip list)"
+    echo -e "  ${YELLOW}-u, --update${NC}    ${BOLD}»${NC} Update pip, setuptools, and wheel"
+    echo -e "  ${YELLOW}-c, --create${NC}    ${BOLD}»${NC} Create a new project (interactive wizard)"
+    echo -e "  ${YELLOW}-rm, --remove${NC}   ${BOLD}»${NC} Remove the venv directory (safely)"
+    echo -e "  ${YELLOW}-f, --find${NC}      ${BOLD}»${NC} Find a project (requires fzf)"
     echo -e ""
-    echo -e "${BOLD}📦 ZALEŻNOŚCI:${NC}"
-    echo -e "  ${YELLOW}-sy, --sync${NC}     ${BOLD}»${NC} Synchronizuj venv z requirements.txt"
+    echo -e "${BOLD}📦 DEPENDENCIES:${NC}"
+    echo -e "  ${YELLOW}-sy, --sync${NC}     ${BOLD}»${NC} Synchronize venv with requirements.txt"
     echo -e ""
-    echo -e "${BOLD}📁 ZARZĄDZANIE:${NC}"
-    echo -e "  ${YELLOW}-rn, --rename${NC}   ${BOLD}»${NC} Zmień nazwę projektu (odbudowuje venv)"
-    echo -e "  ${YELLOW}-mv, --move${NC}     ${BOLD}»${NC} Przenieś projekt w inne miejsce"
+    echo -e "${BOLD}📁 MANAGEMENT:${NC}"
+    echo -e "  ${YELLOW}-rn, --rename${NC}   ${BOLD}»${NC} Rename the project (rebuilds venv)"
+    echo -e "  ${YELLOW}-mv, --move${NC}     ${BOLD}»${NC} Move the project to another location"
     echo -e ""
-    echo -e "${BOLD}📊 STATYSTYKI:${NC}"
-    echo -e "  ${YELLOW}-i, --info${NC}      ${BOLD}»${NC} Rozszerzony status: rozmiar, pakiety, daty"
-    echo -e "  ${YELLOW}-H, --health${NC}    ${BOLD}»${NC} Diagnostyka venv (symlinki, konflikty)"
-    echo -e "  ${YELLOW}-s, --size${NC}      ${BOLD}»${NC} Projekty posortowane po rozmiarze venv"
+    echo -e "${BOLD}📊 STATISTICS:${NC}"
+    echo -e "  ${YELLOW}-i, --info${NC}      ${BOLD}»${NC} Detailed status: size, packages, dates"
+    echo -e "  ${YELLOW}-H, --health${NC}    ${BOLD}»${NC} Venv health check (symlinks, conflicts)"
+    echo -e "  ${YELLOW}-s, --size${NC}      ${BOLD}»${NC} Projects sorted by venv size"
     echo -e ""
-    echo -e "${BOLD}SKRÓTY:${NC}"
-    echo -e "  ${CYAN}v-q${NC}             ${BOLD}»${NC} Wyjście z venv (deactivate)"
+    echo -e "${BOLD}SHORTCUTS:${NC}"
+    echo -e "  ${CYAN}v-q${NC}             ${BOLD}»${NC} Exit venv (deactivate)"
     return 0
     ;;
 
   -l | --list)
-    echo -e "${CYAN}🔍 Skanowanie ~/Coding/...${NC}"
+    echo -e "${CYAN}🔍 Scanning ~/Coding/...${NC}"
     echo -e "${MAGENTA}──────────────────────────────────────────────────────${NC}"
     find ~/Coding -maxdepth 3 -type d -name "venv" -exec test -e "{}/bin/activate" \; -print |
       sed "s|$HOME/Coding/||; s|/venv||" | column -c 80
@@ -313,44 +313,44 @@ v() {
 
   -p | --pips)
     if [[ -z "$VIRTUAL_ENV" ]]; then
-      echo -e "${RED}✖ BŁĄD:${NC} Najpierw aktywuj venv!"
+      echo -e "${RED}✖ ERROR:${NC} Activate venv first!"
       return 1
     fi
-    echo -e "${CYAN}📦 Pakiety w tym środowisku:${NC}"
+    echo -e "${CYAN}📦 Packages in this environment:${NC}"
     pip list --format=columns | grep -vE "Package|---|pip|setuptools|wheel"
     return 0
     ;;
 
   -u | --update)
     if [[ -z "$VIRTUAL_ENV" ]]; then
-      echo -e "${RED}✖ BŁĄD:${NC} Najpierw aktywuj venv!"
+      echo -e "${RED}✖ ERROR:${NC} Activate venv first!"
       return 1
     fi
-    echo -e "${CYAN}🔄 Aktualizacja narzędzi bazowych...${NC}"
+    echo -e "${CYAN}🔄 Updating core tools...${NC}"
     pip install --upgrade pip setuptools wheel
     return 0
     ;;
 
   -c | --create)
-    # ── KROK 1: Nazwa projektu ──────────────────────────────
+    # ── STEP 1: Project name ──────────────────────────────
     echo -e "${MAGENTA}╭──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}🛠  KREATOR NOWEGO PROJEKTU VENV${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}🛠  NEW VENV PROJECT WIZARD${NC}"
     echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
-    echo -en "${CYAN}[1/4]${NC} Podaj nazwę projektu: ${BOLD}"
+    echo -en "${CYAN}[1/4]${NC} Enter project name: ${BOLD}"
     read project_name
     echo -en "${NC}"
     if [[ -z "$project_name" ]]; then
-      echo -e "${RED}✖ BŁĄD:${NC} Nazwa projektu nie może być pusta."
+      echo -e "${RED}✖ ERROR:${NC} Project name cannot be empty."
       return 1
     fi
 
-    # ── KROK 2: Lokalizacja ─────────────────────────────────
+    # ── STEP 2: Location ─────────────────────────────────
     echo -e ""
-    echo -e "${CYAN}[2/4]${NC} Wybierz lokalizację projektu:"
-    echo -e "  ${BOLD}1)${NC} ${GREEN}~/Coding/${project_name}${NC}  ${YELLOW}(domyślna)${NC}"
-    echo -e "  ${BOLD}2)${NC} ${GREEN}$(pwd)/${project_name}${NC}  ${YELLOW}(bieżący folder)${NC}"
-    echo -e "  ${BOLD}3)${NC} ${GREEN}Inna ścieżka...${NC}"
-    echo -en "${CYAN}Wybór [1/2/3]:${NC} "
+    echo -e "${CYAN}[2/4]${NC} Choose the project location:"
+    echo -e "  ${BOLD}1)${NC} ${GREEN}~/Coding/${project_name}${NC}  ${YELLOW}(default)${NC}"
+    echo -e "  ${BOLD}2)${NC} ${GREEN}$(pwd)/${project_name}${NC}  ${YELLOW}(current directory)${NC}"
+    echo -e "  ${BOLD}3)${NC} ${GREEN}Custom path...${NC}"
+    echo -en "${CYAN}Selection [1/2/3]:${NC} "
     read -n 1 loc_choice
     echo ""
 
@@ -363,58 +363,58 @@ v() {
       project_dir="$(pwd)/$project_name"
       ;;
     3)
-      echo -en "${CYAN}Podaj pełną ścieżkę: ${NC}"
+      echo -en "${CYAN}Enter the full path: ${NC}"
       read custom_path
       project_dir="${custom_path%/}/$project_name"
       ;;
     *)
-      echo -e "${RED}✖ Nieprawidłowy wybór.${NC}"
+      echo -e "${RED}✖ Invalid selection.${NC}"
       return 1
       ;;
     esac
 
-    echo -e "${MAGENTA}│${NC} 📍 Projekt zostanie utworzony w: ${BOLD}$project_dir${NC}"
+    echo -e "${MAGENTA}│${NC} 📍 Project will be created in: ${BOLD}$project_dir${NC}"
 
-    # ── KROK 3: Git init ────────────────────────────────────
+    # ── STEP 3: Git init ────────────────────────────────────
     echo -e ""
-    echo -en "${CYAN}[3/4]${NC} Inicjalizować git + .gitignore? ${BOLD}(y/n):${NC} "
+    echo -en "${CYAN}[3/4]${NC} Initialize git + .gitignore? ${BOLD}(y/n):${NC} "
     read -n 1 do_git
     echo ""
 
-    # ── KROK 4: requirements.txt ────────────────────────────
-    echo -en "${CYAN}[4/4]${NC} Stworzyć pusty requirements.txt? ${BOLD}(y/n):${NC} "
+    # ── STEP 4: requirements.txt ────────────────────────────
+    echo -en "${CYAN}[4/4]${NC} Create an empty requirements.txt? ${BOLD}(y/n):${NC} "
     read -n 1 do_req
     echo ""
 
-    # ── TWORZENIE ───────────────────────────────────────────
+    # ── CREATION ───────────────────────────────────────────
     echo -e ""
     echo -e "${MAGENTA}──────────────────────────────────────────────────────${NC}"
 
-    # Utwórz katalog projektu
+    # Create the project directory
     if [[ -d "$project_dir" ]]; then
-      echo -e "${YELLOW}⚠  Folder już istnieje:${NC} $project_dir"
+      echo -e "${YELLOW}⚠  Directory already exists:${NC} $project_dir"
     else
       mkdir -p "$project_dir" &&
-        echo -e "${GREEN}✔${NC} Utworzono folder: ${BOLD}$project_dir${NC}"
+        echo -e "${GREEN}✔${NC} Created directory: ${BOLD}$project_dir${NC}"
     fi
 
     cd "$project_dir" || return 1
 
-    # Sprawdź czy venv już jest
+    # Check whether venv already exists
     if [[ -d "venv" ]]; then
-      echo -e "${YELLOW}⚠  Venv już istnieje w tym folderze — pomijam tworzenie.${NC}"
+      echo -e "${YELLOW}⚠  Venv already exists in this directory — skipping creation.${NC}"
     else
-      echo -en "${CYAN}⏳ Tworzenie venv...${NC} "
+      echo -en "${CYAN}⏳ Creating venv...${NC} "
       python3 -m venv venv && echo -e "${GREEN}✔${NC}"
       source venv/bin/activate
-      echo -en "${CYAN}⏳ Aktualizacja pip...${NC} "
+      echo -en "${CYAN}⏳ Updating pip...${NC} "
       pip install --upgrade pip --quiet && echo -e "${GREEN}✔${NC}"
     fi
 
     # Git init
     if [[ "$do_git" == "y" || "$do_git" == "Y" ]]; then
       if [[ -d ".git" ]]; then
-        echo -e "${YELLOW}⚠  Repozytorium git już istnieje — pomijam.${NC}"
+        echo -e "${YELLOW}⚠  Git repository already exists — skipping.${NC}"
       else
         git init --quiet && echo -e "${GREEN}✔${NC} Git init"
         cat >.gitignore <<'EOF'
@@ -431,16 +431,16 @@ build/
 .pytest_cache/
 .mypy_cache/
 EOF
-        echo -e "${GREEN}✔${NC} .gitignore utworzony"
+        echo -e "${GREEN}✔${NC} .gitignore created"
       fi
     fi
 
     # requirements.txt
     if [[ "$do_req" == "y" || "$do_req" == "Y" ]]; then
       if [[ ! -f "requirements.txt" ]]; then
-        touch requirements.txt && echo -e "${GREEN}✔${NC} requirements.txt utworzony"
+        touch requirements.txt && echo -e "${GREEN}✔${NC} requirements.txt created"
       else
-        echo -e "${YELLOW}⚠  requirements.txt już istnieje — pomijam.${NC}"
+        echo -e "${YELLOW}⚠  requirements.txt already exists — skipping.${NC}"
       fi
     fi
 
@@ -451,90 +451,90 @@ EOF
 
   -rm | --remove)
     if [[ ! -d "venv" ]]; then
-      echo -e "${RED}✖ BŁĄD:${NC} Nie ma tu folderu venv."
+      echo -e "${RED}✖ ERROR:${NC} There is no venv directory here."
       return 1
     fi
-    echo -en "${RED}❗ Czy na pewno usunąć venv w tym folderze? (y/n): ${NC}"
+    echo -en "${RED}❗ Are you sure you want to remove venv in this directory? (y/n): ${NC}"
     read -n 1 answer
     echo ""
     if [[ "$answer" == "y" ]]; then
       [[ -n "$VIRTUAL_ENV" ]] && deactivate
-      rm -rf venv && echo -e "${GREEN}🗑 Usunięto.${NC}"
+      rm -rf venv && echo -e "${GREEN}🗑 Removed.${NC}"
     fi
     return 0
     ;;
 
   -f | --find)
     if ! command -v fzf &>/dev/null; then
-      echo -e "${RED}✖ BŁĄD:${NC} Zainstaluj fzf!"
+      echo -e "${RED}✖ ERROR:${NC} Install fzf!"
       return 1
     fi
     local choice=$(find ~/Coding -maxdepth 3 -type d -name "venv" |
       sed "s|$HOME/Coding/||; s|/venv||" |
-      fzf --height 40% --reverse --prompt="🚀 Skocz do: ")
+      fzf --height 40% --reverse --prompt="🚀 Jump to: ")
     [[ -n "$choice" ]] && v "$choice"
     return 0
     ;;
 
-  # ── NOWE FLAGI ────────────────────────────────────────────
+  # ── NEW FLAGS ────────────────────────────────────────────
 
   -sy | --sync)
     if [[ -z "$VIRTUAL_ENV" ]]; then
-      echo -e "${RED}✖ BŁĄD:${NC} Najpierw aktywuj venv!"
+      echo -e "${RED}✖ ERROR:${NC} Activate venv first!"
       return 1
     fi
     if [[ ! -f "requirements.txt" ]]; then
-      echo -e "${RED}✖ BŁĄD:${NC} Brak pliku requirements.txt w tym folderze."
+      echo -e "${RED}✖ ERROR:${NC} No requirements.txt file in this directory."
       return 1
     fi
     echo -e "${MAGENTA}╭──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}🔄 SYNCHRONIZACJA Z requirements.txt${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}🔄 SYNCHRONIZATION WITH requirements.txt${NC}"
     echo -e "${MAGENTA}├──────────────────────────────────────────────────────────${NC}"
 
-    # Pakiety wymagane wg pliku
+    # Required packages according to the file
     local required=$(grep -vE '^\s*#|^\s*$' requirements.txt | sed 's/[>=<!].*//' | tr '[:upper:]' '[:lower:]' | sort)
-    # Pakiety zainstalowane (bez base)
+    # Installed packages (excluding base packages)
     local installed=$(pip list --format=freeze 2>/dev/null |
       grep -vE "^pip==|^setuptools==|^wheel==" |
       sed 's/==.*//' | tr '[:upper:]' '[:lower:]' | sort)
 
-    # Do instalacji (są w requirements, nie ma w venv)
+    # To install (listed in requirements.txt but missing from venv)
     local to_install=$(comm -23 <(echo "$required") <(echo "$installed"))
-    # Do usunięcia (są w venv, nie ma w requirements)
+    # To remove (installed in venv but missing from requirements.txt)
     local to_remove=$(comm -13 <(echo "$required") <(echo "$installed"))
 
     if [[ -z "$to_install" && -z "$to_remove" ]]; then
-      echo -e "${MAGENTA}│${NC} ${GREEN}✔ Środowisko zsynchronizowane — brak zmian.${NC}"
+      echo -e "${MAGENTA}│${NC} ${GREEN}✔ Environment is synchronized — no changes needed.${NC}"
       echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
       return 0
     fi
 
     if [[ -n "$to_install" ]]; then
-      echo -e "${MAGENTA}│${NC} ${GREEN}➕ Do instalacji:${NC}"
+      echo -e "${MAGENTA}│${NC} ${GREEN}➕ To install:${NC}"
       echo "$to_install" | while read -r pkg; do
         echo -e "${MAGENTA}│${NC}    ${GREEN}↳${NC} $pkg"
       done
     fi
     if [[ -n "$to_remove" ]]; then
-      echo -e "${MAGENTA}│${NC} ${RED}➖ Do usunięcia (nie ma w requirements.txt):${NC}"
+      echo -e "${MAGENTA}│${NC} ${RED}➖ To remove (not in requirements.txt):${NC}"
       echo "$to_remove" | while read -r pkg; do
         echo -e "${MAGENTA}│${NC}    ${RED}↳${NC} $pkg"
       done
     fi
 
     echo -e "${MAGENTA}├──────────────────────────────────────────────────────────${NC}"
-    echo -en "${MAGENTA}│${NC} ${CYAN}Zastosować zmiany? (y/n):${NC} "
+    echo -en "${MAGENTA}│${NC} ${CYAN}Apply changes? (y/n):${NC} "
     read -n 1 sync_answer
     echo ""
     if [[ "$sync_answer" == "y" || "$sync_answer" == "Y" ]]; then
       [[ -n "$to_install" ]] && pip install -r requirements.txt --quiet &&
-        echo -e "${MAGENTA}│${NC} ${GREEN}✔ Zainstalowano brakujące pakiety.${NC}"
+        echo -e "${MAGENTA}│${NC} ${GREEN}✔ Installed missing packages.${NC}"
       if [[ -n "$to_remove" ]]; then
         echo "$to_remove" | xargs pip uninstall -y --quiet 2>/dev/null
-        echo -e "${MAGENTA}│${NC} ${GREEN}✔ Usunięto nadmiarowe pakiety.${NC}"
+        echo -e "${MAGENTA}│${NC} ${GREEN}✔ Removed extra packages.${NC}"
       fi
     else
-      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸ Anulowano.${NC}"
+      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸ Cancelled.${NC}"
     fi
     echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
     return 0
@@ -546,56 +546,56 @@ EOF
     local parent_dir=$(dirname "$current_dir")
 
     echo -e "${MAGENTA}╭──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}✏️  ZMIANA NAZWY PROJEKTU${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}✏️  RENAME PROJECT${NC}"
     echo -e "${MAGENTA}├──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}Obecna nazwa:${NC} ${BOLD}$current_name${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}Lokalizacja:${NC}  ${BOLD}$parent_dir${NC}"
-    echo -en "${MAGENTA}│${NC} ${CYAN}Nowa nazwa:${NC}   ${BOLD}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}Current name:${NC} ${BOLD}$current_name${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}Location:${NC}  ${BOLD}$parent_dir${NC}"
+    echo -en "${MAGENTA}│${NC} ${CYAN}New name:${NC}   ${BOLD}"
     read new_name
     echo -en "${NC}"
 
     if [[ -z "$new_name" ]]; then
-      echo -e "${MAGENTA}│${NC} ${RED}✖ Nowa nazwa nie może być pusta.${NC}"
+      echo -e "${MAGENTA}│${NC} ${RED}✖ New name cannot be empty.${NC}"
       echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
       return 1
     fi
     if [[ "$new_name" == "$current_name" ]]; then
-      echo -e "${MAGENTA}│${NC} ${YELLOW}⚠ Taka sama nazwa — brak zmian.${NC}"
+      echo -e "${MAGENTA}│${NC} ${YELLOW}⚠ Same name — no changes made.${NC}"
       echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
       return 0
     fi
 
     local new_dir="$parent_dir/$new_name"
     if [[ -d "$new_dir" ]]; then
-      echo -e "${MAGENTA}│${NC} ${RED}✖ Folder '$new_name' już istnieje w $parent_dir${NC}"
+      echo -e "${MAGENTA}│${NC} ${RED}✖ Directory '$new_name' already exists in $parent_dir${NC}"
       echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
       return 1
     fi
 
-    echo -e "${MAGENTA}│${NC} ${YELLOW}⚠  Zostanie wykonane:${NC}"
+    echo -e "${MAGENTA}│${NC} ${YELLOW}⚠  The following action will be performed:${NC}"
     echo -e "${MAGENTA}│${NC}    ${BOLD}$current_dir${NC}  →  ${BOLD}$new_dir${NC}"
-    echo -en "${MAGENTA}│${NC} ${CYAN}Potwierdzasz? (y/n):${NC} "
+    echo -en "${MAGENTA}│${NC} ${CYAN}Confirm? (y/n):${NC} "
     read -n 1 rn_answer
     echo ""
     if [[ "$rn_answer" != "y" && "$rn_answer" != "Y" ]]; then
-      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸ Anulowano.${NC}"
+      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸ Cancelled.${NC}"
       echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
       return 0
     fi
 
-    # Deaktywuj jeśli aktywny
+    # Deactivate if active
     if [[ -n "$VIRTUAL_ENV" ]]; then
       deactivate
-      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸ Deaktywowano venv.${NC}"
+      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸ Deactivated venv.${NC}"
     fi
 
     mv "$current_dir" "$new_dir" &&
-      echo -e "${MAGENTA}│${NC} ${GREEN}✔ Zmieniono nazwę folderu.${NC}"
+      echo -e "${MAGENTA}│${NC} ${GREEN}✔ Renamed directory.${NC}"
 
-    # Wejdź do nowego folderu i odbuduj venv jeśli istnieje
+    # Enter the new directory and rebuild venv if it exists
     cd "$new_dir" || return 1
     if [[ -d "venv" ]]; then
-      echo -e "${MAGENTA}│${NC} ${CYAN}🔁 Odbudowuję venv (ścieżki się zmieniły)...${NC}"
+      echo -e "${MAGENTA}│${NC} ${CYAN}🔁 Rebuilding venv (paths have changed)...${NC}"
       local has_req=false
       [[ -f "requirements.txt" ]] && has_req=true
       rm -rf venv
@@ -604,12 +604,12 @@ EOF
       pip install --upgrade pip --quiet
       if $has_req; then
         pip install -r requirements.txt --quiet &&
-          echo -e "${MAGENTA}│${NC} ${GREEN}✔ Zainstalowano pakiety z requirements.txt.${NC}"
+          echo -e "${MAGENTA}│${NC} ${GREEN}✔ Installed packages from requirements.txt.${NC}"
       fi
-      echo -e "${MAGENTA}│${NC} ${GREEN}✔ Venv gotowy.${NC}"
+      echo -e "${MAGENTA}│${NC} ${GREEN}✔ Venv is ready.${NC}"
     fi
     echo -e "${MAGENTA}├──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${GREEN}${BOLD}✔ Projekt przemianowany: ${current_name} → ${new_name}${NC}"
+    echo -e "${MAGENTA}│${NC} ${GREEN}${BOLD}✔ Project renamed: ${current_name} → ${new_name}${NC}"
     echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
     return 0
     ;;
@@ -619,15 +619,15 @@ EOF
     local current_name=$(basename "$current_dir")
 
     echo -e "${MAGENTA}╭──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}📦 PRZENOSZENIE PROJEKTU${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}${BOLD}📦 MOVE PROJECT${NC}"
     echo -e "${MAGENTA}├──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}Projekt:${NC}    ${BOLD}$current_name${NC}"
-    echo -e "${MAGENTA}│${NC} ${CYAN}Obecna lok.:${NC} ${BOLD}$current_dir${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}Project:${NC}    ${BOLD}$current_name${NC}"
+    echo -e "${MAGENTA}│${NC} ${CYAN}Current loc.:${NC} ${BOLD}$current_dir${NC}"
     echo -e ""
-    echo -e "${CYAN}[1/2]${NC} Wybierz cel przeniesienia:"
-    echo -e "  ${BOLD}1)${NC} ${GREEN}~/Coding/${NC}  ${YELLOW}(domyślna)${NC}"
-    echo -e "  ${BOLD}2)${NC} Inna ścieżka..."
-    echo -en "${CYAN}Wybór [1/2]:${NC} "
+    echo -e "${CYAN}[1/2]${NC} Choose the destination:"
+    echo -e "  ${BOLD}1)${NC} ${GREEN}~/Coding/${NC}  ${YELLOW}(default)${NC}"
+    echo -e "  ${BOLD}2)${NC} Custom path..."
+    echo -en "${CYAN}Selection [1/2]:${NC} "
     read -n 1 mv_loc
     echo ""
 
@@ -637,12 +637,12 @@ EOF
       target_parent="$HOME/Coding"
       ;;
     2)
-      echo -en "${CYAN}Podaj pełną ścieżkę docelową: ${NC}"
+      echo -en "${CYAN}Enter the full destination path: ${NC}"
       read target_parent
       target_parent="${target_parent%/}"
       ;;
     *)
-      echo -e "${RED}✖ Nieprawidłowy wybór.${NC}"
+      echo -e "${RED}✖ Invalid selection.${NC}"
       return 1
       ;;
     esac
@@ -650,43 +650,43 @@ EOF
     local target_dir="$target_parent/$current_name"
 
     if [[ "$target_dir" == "$current_dir" ]]; then
-      echo -e "${MAGENTA}│${NC} ${YELLOW}⚠ Projekt już jest w tym miejscu.${NC}"
+      echo -e "${MAGENTA}│${NC} ${YELLOW}⚠ Project is already in this location.${NC}"
       echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
       return 0
     fi
     if [[ -d "$target_dir" ]]; then
-      echo -e "${MAGENTA}│${NC} ${RED}✖ W miejscu docelowym już istnieje folder '$current_name'.${NC}"
+      echo -e "${MAGENTA}│${NC} ${RED}✖ A directory named '$current_name' already exists at the destination.${NC}"
       echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
       return 1
     fi
 
-    echo -e "${MAGENTA}│${NC} ${YELLOW}⚠  Zostanie wykonane:${NC}"
+    echo -e "${MAGENTA}│${NC} ${YELLOW}⚠  The following action will be performed:${NC}"
     echo -e "${MAGENTA}│${NC}    ${BOLD}$current_dir${NC}"
     echo -e "${MAGENTA}│${NC}    ${BOLD}→ $target_dir${NC}"
-    echo -en "${MAGENTA}│${NC} ${CYAN}Potwierdzasz? (y/n):${NC} "
+    echo -en "${MAGENTA}│${NC} ${CYAN}Confirm? (y/n):${NC} "
     read -n 1 mv_answer
     echo ""
     if [[ "$mv_answer" != "y" && "$mv_answer" != "Y" ]]; then
-      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸ Anulowano.${NC}"
+      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸ Cancelled.${NC}"
       echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
       return 0
     fi
 
-    # Deaktywuj jeśli aktywny
+    # Deactivate if active
     if [[ -n "$VIRTUAL_ENV" ]]; then
       deactivate
-      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸ Deaktywowano venv.${NC}"
+      echo -e "${MAGENTA}│${NC} ${YELLOW}⏸ Deactivated venv.${NC}"
     fi
 
     mkdir -p "$target_parent"
     mv "$current_dir" "$target_dir" &&
-      echo -e "${MAGENTA}│${NC} ${GREEN}✔ Przeniesiono folder projektu.${NC}"
+      echo -e "${MAGENTA}│${NC} ${GREEN}✔ Moved project directory.${NC}"
 
     cd "$target_dir" || return 1
 
-    # Odbuduj venv jeśli istnieje (ścieżki w venv są bezwzględne)
+    # Rebuild venv if it exists (venv paths are absolute)
     if [[ -d "venv" ]]; then
-      echo -e "${MAGENTA}│${NC} ${CYAN}🔁 Odbudowuję venv (nowe ścieżki)...${NC}"
+      echo -e "${MAGENTA}│${NC} ${CYAN}🔁 Rebuilding venv (new paths)...${NC}"
       local has_req=false
       [[ -f "requirements.txt" ]] && has_req=true
       rm -rf venv
@@ -695,13 +695,13 @@ EOF
       pip install --upgrade pip --quiet
       if $has_req; then
         pip install -r requirements.txt --quiet &&
-          echo -e "${MAGENTA}│${NC} ${GREEN}✔ Zainstalowano pakiety z requirements.txt.${NC}"
+          echo -e "${MAGENTA}│${NC} ${GREEN}✔ Installed packages from requirements.txt.${NC}"
       fi
-      echo -e "${MAGENTA}│${NC} ${GREEN}✔ Venv gotowy.${NC}"
+      echo -e "${MAGENTA}│${NC} ${GREEN}✔ Venv is ready.${NC}"
     fi
 
     echo -e "${MAGENTA}├──────────────────────────────────────────────────────────${NC}"
-    echo -e "${MAGENTA}│${NC} ${GREEN}${BOLD}✔ Projekt przeniesiony do: $target_dir${NC}"
+    echo -e "${MAGENTA}│${NC} ${GREEN}${BOLD}✔ Project moved to: $target_dir${NC}"
     echo -e "${MAGENTA}╰──────────────────────────────────────────────────────────${NC}"
     return 0
     ;;
@@ -723,7 +723,7 @@ EOF
 
   esac
 
-  # --- LOGIKA GŁÓWNA (AKTYWACJA) ---
+  # --- MAIN LOGIC (ACTIVATION) ---
   local target_dir="."
   [[ -n "$1" ]] && target_dir="$HOME/Coding/$1"
 
@@ -733,8 +733,8 @@ EOF
       source venv/bin/activate
       _v_status
     else
-      echo -e "${YELLOW}⚠ Brak venv w folderze:${NC} ${BOLD}$(basename "$PWD")${NC}"
-      echo -en "${CYAN}Utworzyć nowe środowisko tutaj? (y/n): ${NC}"
+      echo -e "${YELLOW}⚠ No venv in directory:${NC} ${BOLD}$(basename "$PWD")${NC}"
+      echo -en "${CYAN}Create a new environment here? (y/n): ${NC}"
       read -n 1 answer
       echo ""
       if [[ "$answer" == "y" ]]; then
@@ -742,7 +742,7 @@ EOF
       fi
     fi
   else
-    echo -e "${RED}✖ BŁĄD:${NC} Projekt ${BOLD}'$1'${NC} nie istnieje w ~/Coding/"
-    echo -e "Użyj ${YELLOW}v -l${NC} aby zobaczyć listę."
+    echo -e "${RED}✖ ERROR:${NC} Project ${BOLD}'$1'${NC} does not exist in ~/Coding/"
+    echo -e "Use ${YELLOW}v -l${NC} to view the list."
   fi
 }
