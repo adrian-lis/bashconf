@@ -38,6 +38,7 @@ bashrc/
 │   ├── git.bash
 │   ├── docker.bash
 │   └── optional-tools.bash
+│   └── venv.bash
 ├── install.sh
 ├── README.md
 └── LICENSE
@@ -218,6 +219,12 @@ lazyg
 json data.json
 cat data.json | jsonpipe
 jsoncheck data.json
+```
+
+### Venv
+
+```bash
+v -h # Manual
 ```
 
 ---
